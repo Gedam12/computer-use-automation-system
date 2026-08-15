@@ -1,0 +1,71 @@
+{
+  "artifact_version": "1.0",
+  "capability_name": "lookup_savings_balance",
+  "description": "Look up a member by member ID and return the current savings balance.",
+  "target": "http://127.0.0.1:8000",
+
+  "inputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "required": true,
+      "description": "The member ID to search for."
+    }
+  ],
+
+  "outputs": [
+    {
+      "name": "savings_balance",
+      "type": "number",
+      "description": "The member's current savings balance."
+    }
+  ],
+
+  "steps": [
+    {
+      "id": "step_1",
+      "action": "type",
+      "locator": {
+        "strategy": "label",
+        "value": "member_id"
+      },
+      "value": "{{member_id}}",
+      "description": "Enter the member ID."
+    },
+
+    {
+      "id": "step_2",
+      "action": "click",
+      "locator": {
+        "strategy": "role",
+        "value": "Search"
+      },
+      "description": "Submit the member lookup."
+    },
+
+    {
+      "id": "step_3",
+      "action": "read",
+      "locator": {
+        "strategy": "css",
+        "value": "#savings-balance"
+      },
+      "output_name": "savings_balance",
+      "description": "Read the member's savings balance."
+    }
+  ],
+
+  "checkpoint": {
+    "locator": {
+      "strategy": "text",
+      "value": "Member Details"
+    },
+    "expected_text": "Member Details",
+    "description": "Confirm that the member details screen was reached."
+  },
+
+  "metadata": {
+    "surface": "web",
+    "risk_level": "read_only"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "run_type": "replay",
+  "capability": "lookup_savings_balance",
+  "started_at": "2026-08-14T23:59:44.989482+00:00",
+  "inputs": {
+    "member_id": "67890"
+  },
+  "steps": [
+    {
+      "step_id": "step_1",
+      "action": "type",
+      "description": "Type the member ID 12345 into the search input field.",
+      "started_at": "2026-08-14T23:59:50.989509+00:00",
+      "status": "completed",
+      "finished_at": "2026-08-14T23:59:51.078214+00:00"
+    },
+    {
+      "step_id": "step_2",
+      "action": "click",
+      "description": "Click the Search button to look up member 12345.",
+      "started_at": "2026-08-14T23:59:51.078288+00:00",
+      "status": "completed",
+      "finished_at": "2026-08-14T23:59:53.438215+00:00"
+    },
+    {
+      "step_id": "step_3",
+      "action": "read",
+      "description": "Read the parent element of the Savings Balance text to extract both the label and the value ($ 8920.50).",
+      "started_at": "2026-08-14T23:59:53.438345+00:00",
+      "status": "completed",
+      "finished_at": "2026-08-14T23:59:53.470266+00:00"
+    }
+  ],
+  "result": {
+    "status": "success",
+    "capability": "lookup_savings_balance",
+    "outputs": {
+      "savings_balance": 15440.1
+    }
+  },
+  "finished_at": "2026-08-14T23:59:53.487949+00:00"
+}

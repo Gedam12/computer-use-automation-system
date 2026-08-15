@@ -1,0 +1,80 @@
+{
+  "artifact_version": "1.0",
+  "capability_name": "lookup_savings_balance",
+  "description": "Look up member 12345 and return the current savings balance",
+  "target": "http://127.0.0.1:8000",
+  "inputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "required": true,
+      "description": "Member ID to look up."
+    }
+  ],
+  "outputs": [
+    {
+      "name": "savings_balance",
+      "type": "number",
+      "description": "Savings balance returned by the application."
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_1",
+      "action": "type",
+      "locator": {
+        "strategy": "css",
+        "value": "input"
+      },
+      "value": "{{member_id}}",
+      "output_name": null,
+      "description": "Type the member ID 12345 into the search input field."
+    },
+    {
+      "id": "step_2",
+      "action": "click",
+      "locator": {
+        "strategy": "text",
+        "value": "Search"
+      },
+      "value": null,
+      "output_name": null,
+      "description": "Click the Search button to look up member 12345."
+    },
+    {
+      "id": "step_3",
+      "action": "read",
+      "locator": {
+        "strategy": "css",
+        "value": "//*[contains(text(), 'Savings Balance')]"
+      },
+      "value": null,
+      "output_name": "savings_balance",
+      "description": "Read the savings balance of the member using XPath to locate the element containing the Savings Balance text."
+    },
+    {
+      "id": "step_4",
+      "action": "read",
+      "locator": {
+        "strategy": "css",
+        "value": "//*[contains(text(), 'Savings Balance')]/.."
+      },
+      "value": null,
+      "output_name": "savings_balance",
+      "description": "Read the parent element of the Savings Balance text to extract both the label and the value ($ 8920.50)."
+    }
+  ],
+  "checkpoint": {
+  "locator": {
+    "strategy": "text",
+    "value": "Account Review"
+  },
+  "expected_text": "Account Review",
+  "description": "Deliberately incorrect checkpoint used to test human handoff."
+},
+  "metadata": {
+    "surface": "web",
+    "discovered_by": "gemini-3.5-flash",
+    "risk_level": "read_only"
+  }
+}

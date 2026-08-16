@@ -244,23 +244,10 @@ The tests cover:
 
 The `/evidence/` directory contains:
 
-```text
-discovery_latest.json
-```
-
-Structured evidence from the real LLM-driven discovery run.
-
-```text
-replay_latest.json
-```
-
-Structured evidence from deterministic replay.
-
-```text
-handoff_checkpoint_failure.png
-```
-
-Screenshot evidence from the human-handoff scenario.
+- `discovery_latest.json` — structured evidence from the real LLM-driven discovery run.
+- `replay_latest.json` — structured evidence from deterministic replay.
+- `successful_lookup.png` — screenshot captured automatically after a successful replay.
+- `handoff_checkpoint_failure.png` — screenshot evidence from the human-handoff scenario.
 
 ## Design Details
 

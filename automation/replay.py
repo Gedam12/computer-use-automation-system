@@ -247,6 +247,16 @@ async def replay_capability(
 
                     return result
 
+            # Capture evidence of a successful replay
+            success_screenshot_path = (
+                "evidence/successful_lookup.png"
+            )
+
+            await page.screenshot(
+                path=success_screenshot_path,
+                full_page=True,
+            )
+
             result = {
                 "status": "success",
                 "capability": artifact.capability_name,
@@ -254,6 +264,9 @@ async def replay_capability(
             }
 
             run_log["result"] = result
+            run_log["success_screenshot"] = (
+                success_screenshot_path
+            )
             run_log["finished_at"] = utc_now()
 
             if handoff.state.requested_at:

@@ -249,6 +249,7 @@ The `/evidence/` directory contains:
 - `replay_latest.json` — structured evidence from deterministic replay.
 - `successful_lookup.png` — screenshot captured automatically after a successful replay.
 - `handoff_checkpoint_failure.png` — screenshot evidence from the human-handoff scenario.
+- `member_not_found.png` — screenshot of the expected business-outcome path for an unknown member.
 
 ## Design Details
 

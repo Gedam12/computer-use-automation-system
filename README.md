@@ -51,8 +51,9 @@ interface-ai-assignment/
 ├── evidence/
 │   ├── discovery_latest.json
 │   ├── replay_latest.json
-│   |── handoff_checkpoint_failure.png
+│   ├── handoff_checkpoint_failure.png
 │   └──successful_lookup.png
+│
 ├── tests/
 │   └── test_core.py
 │

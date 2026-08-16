@@ -1,46 +1,32 @@
 # Computer-Use Automation System
 
-A small end-to-end computer-use automation system that demonstrates:
+A small end-to-end computer-use automation system that demonstrates how an LLM can discover a workflow against a live UI, save it as a reusable capability, and replay it deterministically without the LLM.
 
-* LLM-driven discovery against a live UI
-* typed, versioned capability artifacts
-* deterministic replay without an LLM
-* parameterized inputs and typed outputs
-* business-outcome handling
-* configurable safety guardrails
-* structured run evidence
-* human-in-the-loop escalation using the same live browser session
+The demo uses a local mock banking application to look up a member and return their savings balance.
 
-The demo target is a local mock banking back-office application used to look up a member and return their savings balance.
-
-## Architecture Overview
-
-The project separates discovery from production execution.
-
-During discovery, Gemini observes the current UI state, chooses one action at a time, and interacts with the application through Playwright.
-
-A successful discovery run is converted into a typed capability artifact.
-
-That artifact can later be replayed deterministically with different input parameters without invoking the LLM.
-
-High-level flow:
+## How It Works
 
 ```text
 Natural-language goal
-        |
-        v
-LLM discovery loop
-Observe -> Decide -> Act
-        |
-        v
-Capability artifact
-        |
-        v
-Deterministic replay
-        |
-        v
-Structured result
+        ↓
+LLM Discovery
+(observe → decide → act)
+        ↓
+Typed Capability Artifact
+        ↓
+Deterministic Replay
+(no LLM)
+        ↓
+Structured Result
 ```
+
+The system also includes:
+
+- Parameterized inputs and typed outputs
+- Business-outcome and failure handling
+- Safety allowlists
+- Structured run evidence
+- Human-in-the-loop handoff using the same live browser session
 
 ## Project Structure
 
@@ -77,19 +63,15 @@ interface-ai-assignment/
 └── requirements.txt
 ```
 
-## Requirements
-
-* Python 3.11+
-* Chromium
-* Gemini API key
-
-The implementation was developed using Python and Playwright.
-
 ## Setup
 
-Create and activate a virtual environment.
+### Requirements
 
-Windows PowerShell:
+- Python 3.11+
+- Chromium
+- Gemini API key
+
+Create and activate a virtual environment:
 
 ```powershell
 python -m venv .venv
@@ -108,19 +90,17 @@ Install Chromium for Playwright:
 playwright install chromium
 ```
 
-## Environment Configuration
-
 Create a `.env` file in the project root:
 
 ```env
 GEMINI_API_KEY=your_api_key_here
 ```
 
-Do not commit `.env` or API keys to source control.
+Secrets are excluded from source control through `.gitignore`.
 
-A `.env.example` file is included as a reference.
+## Quick Demo
 
-## Start the Demo Application
+### 1. Start the target application
 
 Run:
 
@@ -134,24 +114,9 @@ The mock banking application will be available at:
 http://127.0.0.1:8000
 ```
 
-Known sample members:
+### 2. Run LLM Discovery
 
-```text
-12345
-67890
-```
-
-An unknown member ID such as:
-
-```text
-99999
-```
-
-produces a legitimate `member_not_found` business outcome.
-
-## Run LLM Discovery
-
-Keep the demo application running.
+Keep the application running.
 
 In another terminal with the virtual environment activated, run:
 
@@ -159,32 +124,23 @@ In another terminal with the virtual environment activated, run:
 python -c "import asyncio; from automation.discovery import discovery_run; result=asyncio.run(discovery_run('Look up member 12345 and return the current savings balance', 'http://127.0.0.1:8000', {'member_id':'12345'})); print(result)"
 ```
 
-The discovery process:
+During discovery, Gemini observes the live UI, chooses one action at a time, and Playwright executes those actions.
 
-1. Opens the live application.
-2. Observes the current UI state.
-3. Sends the visible state and goal to Gemini.
-4. Executes one model-selected action at a time.
-5. Explicitly extracts the requested output.
-6. Records successful actions as a reusable artifact.
-
-A successful run creates:
+A successful discovery creates:
 
 ```text
 artifacts/discovered_lookup_savings_balance.json
 ```
 
-and evidence at:
+Discovery evidence is written to:
 
 ```text
 evidence/discovery_latest.json
 ```
 
-## Run Deterministic Replay
+### 3. Replay Without the LLM
 
-The generated artifact can be replayed with a different member ID without calling Gemini.
-
-For example:
+Replay the discovered capability with a different member ID:
 
 ```powershell
 python -c "import asyncio; from automation.replay import replay_capability; result=asyncio.run(replay_capability('artifacts/discovered_lookup_savings_balance.json', {'member_id':'67890'})); print(result)"
@@ -202,7 +158,7 @@ Expected result:
 }
 ```
 
-The replay path uses only the recorded artifact and deterministic browser actions.
+Replay uses the saved artifact and deterministic browser actions. Gemini is not used in the replay decision path.
 
 ## Business Outcome Example
 
@@ -223,17 +179,11 @@ Expected result:
 }
 ```
 
-This is treated as a valid business result rather than a runtime crash.
+`member_not_found` is treated as a valid business outcome rather than a runtime failure.
 
-## Human Handoff Demo
+## Human Handoff
 
-The file:
-
-```text
-artifacts/handoff_test.json
-```
-
-contains a deliberately invalid success checkpoint in order to demonstrate escalation.
+`artifacts/handoff_test.json` contains a deliberately invalid checkpoint used to exercise the escalation path.
 
 Run:
 
@@ -241,65 +191,31 @@ Run:
 python -c "import asyncio; from automation.replay import replay_capability; result=asyncio.run(replay_capability('artifacts/handoff_test.json', {'member_id':'12345'})); print(result)"
 ```
 
-Replay performs the normal workflow and then detects that the expected checkpoint cannot be reached.
+When replay cannot verify the expected checkpoint:
 
-The automation pauses and prints:
+1. Automation pauses.
+2. The same Playwright browser session remains open.
+3. A human can manually interact with the live session.
+4. The human returns to the terminal and presses Enter.
+5. Automation resumes and checks the checkpoint again.
+
+Handoff evidence is captured in:
 
 ```text
-=== HUMAN INTERVENTION REQUIRED ===
+evidence/handoff_checkpoint_failure.png
 ```
-
-The Playwright browser remains open so a human can manually operate the same live session.
-
-After manual intervention, return to the terminal and press Enter.
-
-The automation resumes, re-checks the checkpoint, records the handoff, and returns a structured result.
 
 ## Safety
 
-The replay and discovery paths use an explicit `SafetyPolicy`.
+Execution is constrained by `SafetyPolicy`.
 
-Currently allowed targets:
+- Only the local demo target is allowlisted.
+- Only approved action types can execute.
+- Secrets are loaded from environment variables.
+- API keys are not stored in artifacts or evidence.
+- The demo uses synthetic member data.
 
-```text
-127.0.0.1:8000
-localhost:8000
-```
-
-Allowed action classes include:
-
-```text
-type
-click
-read
-wait
-```
-
-A non-allowlisted target produces a `policy_violation` instead of being executed.
-
-Secrets are loaded from environment variables and are not written into artifacts or logs.
-
-## Evidence
-
-The `evidence/` directory includes:
-
-```text
-discovery_latest.json
-```
-
-Structured evidence of the real LLM discovery run.
-
-```text
-replay_latest.json
-```
-
-Structured evidence of deterministic replay, including each executed step and final result.
-
-```text
-handoff_checkpoint_failure.png
-```
-
-Screenshot captured when the replay reached the deliberately invalid checkpoint used for the human-handoff demonstration.
+The production safety model and its limitations are discussed in `REPORT.md`.
 
 ## Tests
 
@@ -309,27 +225,52 @@ Run:
 python -m pytest -v
 ```
 
-The current test suite covers:
-
-* parameter substitution
-* typed savings-balance normalization
-* comma-formatted balance parsing
-* invalid balance handling
-* allowed target validation
-* blocked target validation
-* allowed action validation
-* artifact schema validation
-
-Current result:
+Current test result:
 
 ```text
 8 passed
 ```
 
-## Notes
+The tests cover:
 
-The implementation intentionally focuses on a small end-to-end vertical slice rather than production-scale infrastructure.
+- Parameter substitution
+- Savings-balance output normalization
+- Invalid output handling
+- Allowed and blocked targets
+- Allowed actions
+- Artifact schema validation
 
-The local banking application is a stand-in for a legacy financial application that does not expose an API.
+## Evidence
 
-The browser interaction layer is separated from the capability schema so additional surface implementations, such as accessibility-based browser control or desktop automation, could be added without changing the high-level capability contract.
+The `/evidence/` directory contains:
+
+```text
+discovery_latest.json
+```
+
+Structured evidence from the real LLM-driven discovery run.
+
+```text
+replay_latest.json
+```
+
+Structured evidence from deterministic replay.
+
+```text
+handoff_checkpoint_failure.png
+```
+
+Screenshot evidence from the human-handoff scenario.
+
+## Design Details
+
+See [`REPORT.md`](REPORT.md) for the deeper design discussion, including:
+
+- Architecture and trade-offs
+- Artifact schema
+- Determinism and error handling
+- Heterogeneous and legacy surfaces
+- Multi-tenant reuse
+- Human escalation and control transfer
+- Safety
+- Deliberate cuts and next steps

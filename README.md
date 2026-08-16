@@ -60,7 +60,7 @@ interface-ai-assignment/
 │
 ├── artifacts/
 │   ├── discovered_lookup_savings_balance.json
-│   ├── handoff_test.json
+│   └── handoff_test.json
 │
 ├── evidence/
 │   ├── discovery_latest.json

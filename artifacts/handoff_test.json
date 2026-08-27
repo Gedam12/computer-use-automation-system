@@ -46,17 +46,6 @@
       "action": "read",
       "locator": {
         "strategy": "css",
-        "value": "//*[contains(text(), 'Savings Balance')]"
-      },
-      "value": null,
-      "output_name": "savings_balance",
-      "description": "Read the savings balance of the member using XPath to locate the element containing the Savings Balance text."
-    },
-    {
-      "id": "step_4",
-      "action": "read",
-      "locator": {
-        "strategy": "css",
         "value": "//*[contains(text(), 'Savings Balance')]/.."
       },
       "value": null,
@@ -65,13 +54,13 @@
     }
   ],
   "checkpoint": {
-  "locator": {
-    "strategy": "text",
-    "value": "Account Review"
+    "locator": {
+      "strategy": "text",
+      "value": "Account Review"
+    },
+    "expected_text": "Account Review",
+    "description": "Deliberately incorrect checkpoint used to test human handoff."
   },
-  "expected_text": "Account Review",
-  "description": "Deliberately incorrect checkpoint used to test human handoff."
-},
   "metadata": {
     "surface": "web",
     "discovered_by": "gemini-3.5-flash",
